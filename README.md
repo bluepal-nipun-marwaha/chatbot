@@ -21,7 +21,38 @@ It was designed to perform local tasks, access online tools, and maintain a frie
 
 ## 📁 Folder Structure
 
-<pre lang="text"> ```txt project-root/ ├── .streamlit/ │ └── config.toml # Main settings for the chatbot appearance ├── chat_bot.py # Main interface ├── pages/ │ └── 1_👤_User_Profile.py # Profile setup page ├── tools/ │ ├── search_tools.py │ ├── log_status.py │ ├── save_txt.py │ ├── timer.py │ ├── time_tool.py │ ├── mail_saver.py │ └── mail_reader.py ├── images/ │ ├── cat.jpg │ ├── dog.jpg │ ├── robot.jpg │ ├── supervisor.jpeg │ └── alien.jpg ├── logs/ │ ├── saved_logs.txt # (ignored in git) │ ├── status_logs.txt # (ignored in git) │ └── mail_logs.txt # (ignored in git) ├── .env # Environment variables (ignored in git) ├── .env.example # Template for environment setup ├── requirements.txt # All dependencies ├── .python-version ├── pyproject.toml └── README.md ``` </pre>
+<pre lang="text"> ```
+txt project-root/ 
+├── .streamlit/ 
+│ └── config.toml # Main settings for the chatbot appearance 
+├── chat_bot.py # Main interface 
+├── pages/ 
+│ └── 1_👤_User_Profile.py # Profile setup page 
+├── tools/ 
+│ ├── search_tools.py 
+│ ├── log_status.py 
+│ ├── save_txt.py 
+│ ├── timer.py 
+│ ├── time_tool.py 
+│ ├── mail_saver.py 
+│ └── mail_reader.py 
+├── images/ 
+│ ├── cat.jpg 
+│ ├── dog.jpg 
+│ ├── robot.jpg
+│ ├── supervisor.jpeg 
+│ └── alien.jpg 
+├── logs/ 
+│ ├── saved_logs.txt # (ignored in git) 
+│ ├── status_logs.txt # (ignored in git) 
+│ └── mail_logs.txt # (ignored in git) 
+├── .env # Environment variables (ignored in git) 
+├── .env.example # Template for environment setup 
+├── requirements.txt # All dependencies 
+├── .python-version 
+├── pyproject.toml 
+└── README.md 
+``` </pre>
 
 
 ## ⚙️ Setup Instructions
