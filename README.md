@@ -81,7 +81,7 @@ check out the .env.example file for an example
 streamlit run chat_bot.py  
 
 
-✅ Features to Explore
+##✅ Features to Explore
 
 Switch user avatars in real time  
 Automatically log daily statuses without going into another file  
@@ -90,7 +90,7 @@ Read your own email log file using natural language
 Query online sources for research with LLM-backed agents  
 
 
-🧩 Technologies Used
+##🧩 Technologies Used
 
 LangGraph  
 LangChain  
@@ -99,7 +99,7 @@ Streamlit
 Python 3.10+  
 
 
-🙋‍♂️ Maintainer  
+##🙋‍♂️ Maintainer  
 Nipun Marwaha  
-📧 nmarwaha135@gmail.com  
-🔗 GitHub  
+📧 nipun.marwaha@bluepal.com  
+🔗 GitHub - https://github.com/nipun-marwaha
