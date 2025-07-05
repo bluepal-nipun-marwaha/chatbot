@@ -1,10 +1,10 @@
 # Assistant Chat Bot
 
-A modular, multi-agent chatbot built with - 
-    [LangGraph](https://github.com/langchain-ai/langgraph)
-    [OpenAI](https://platform.openai.com)
-    [Streamlit](https://streamlit.io) 
-It was designed to perform local tasks, access online tools, and maintain a friendly chat interface.
+A modular, multi-agent chatbot built with -   
+    [LangGraph](https://github.com/langchain-ai/langgraph)  
+    [OpenAI](https://platform.openai.com)  
+    [Streamlit](https://streamlit.io)   
+It was designed to perform local tasks, access online tools, and maintain a friendly chat interface.  
 
 
 ## 🧠 Features
@@ -59,47 +59,47 @@ txt project-root/
 
 ### 1. Clone the repository
 
-bash
-git clone https://github.com/nipun-marwaha/chatbot.git
-cd chatbot
+bash  
+git clone https://github.com/nipun-marwaha/chatbot.git  
+cd chatbot  
 
 ### 2. Create a virtual enviornment
 
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+python -m venv venv  
+source venv/bin/activate   # Windows: venv\Scripts\activate  
 
 ### 3. Install the dependencies
 
-pip install -r requirements.txt
+pip install -r requirements.txt  
 
 ### 4. Set up your .env file
 
-check out the .env.example file for an example
+check out the .env.example file for an example  
 
 ### 5. Run the program
 
-streamlit run chat_bot.py
+streamlit run chat_bot.py  
 
 
 ✅ Features to Explore
 
-Switch user avatars in real time
-Automatically log daily statuses without going into another file
-Set and receive notifications for timers
-Read your own email log file using natural language
-Query online sources for research with LLM-backed agents
+Switch user avatars in real time  
+Automatically log daily statuses without going into another file  
+Set and receive notifications for timers  
+Read your own email log file using natural language  
+Query online sources for research with LLM-backed agents  
 
 
 🧩 Technologies Used
 
-LangGraph
-LangChain
-OpenAI API
-Streamlit
-Python 3.10+
+LangGraph  
+LangChain  
+OpenAI API  
+Streamlit  
+Python 3.10+  
 
 
-🙋‍♂️ Maintainer
-Nipun Marwaha
-📧 nmarwaha135@gmail.com
-🔗 GitHub 
+🙋‍♂️ Maintainer  
+Nipun Marwaha  
+📧 nmarwaha135@gmail.com  
+🔗 GitHub  
