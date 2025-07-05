@@ -1,0 +1,13 @@
+langchain-core>=0.1.50
+langchain>=0.1.16
+langchain-community>=0.0.26
+langchain-openai>=0.1.6
+langgraph>=0.0.30
+langgraph-supervisor>=0.0.3
+streamlit>=1.32.0
+Pillow>=10.0.0
+python-dotenv>=1.0.0
+plyer>=2.1.0
+tzlocal>=5.0.1
+pytz>=2024.1
+python-dateutil>=2.8.2
