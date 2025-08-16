@@ -30,8 +30,8 @@ txt project-root/
 ├── agent_supervisor.py # Agent framework
 ├── monitor.py # Monitoring the emails
 ├── pages/ 
-│ ├── 1_👤_User_Profile.py # Profile setup page 
-│ └── 2_📧_mail_reader.py # Mail reading setup
+│ ├── 1_User_Profile.py # Profile setup page 
+│ └── 2_mail_reader.py # Mail reading setup
 ├── tools/ 
 │ ├── search_tools.py 
 │ ├── log_status.py 
@@ -108,3 +108,4 @@ Twilio
 Nipun Marwaha  
 📧 nmarwaha135@gmail.com  |  nipun.marwaha@bluepal.com  
 🔗 [GitHub](https://github.com/nipun-marwaha)  
+
