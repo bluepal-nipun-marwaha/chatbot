@@ -20,7 +20,7 @@ with st.sidebar:
     st.write(f"**🧑 Username:** {st.session_state['username']}")
 
     if st.session_state["username"] == "User":
-        st.info("💡 Go to the **Profile** page to personalize your avatar and name.")
+        st.info("💡 Go to the **Profile** page to personalize your Avatar and Name.")
 
 st.title("🤖 Assistant Chatbot 🤖")
 
