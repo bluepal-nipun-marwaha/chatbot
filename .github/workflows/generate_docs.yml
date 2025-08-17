@@ -1,0 +1,40 @@
+name: Generate Repository Documentation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate Documentation
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python scanner/generate_docs.py
+
+      - name: Commit and push documentation
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add scanner/Repository_Documentation.md
+          git diff-index --quiet HEAD || git commit -m "Auto-update documentation [skip ci]"
+          git push
