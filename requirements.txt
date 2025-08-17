@@ -12,12 +12,3 @@ tzlocal>=5.0.1
 pytz>=2024.1
 python-dateutil>=2.8.2
 twilio>=9.6.4
-
-
-camel-ai>=0.1.0
-qdrant-client>=1.8.0
-sentence-transformers>=2.2.2
-openai>=0.28.0
-numpy>=1.24.0
-PyGithub>=1.59.0
-unstructured>=0.7.0
