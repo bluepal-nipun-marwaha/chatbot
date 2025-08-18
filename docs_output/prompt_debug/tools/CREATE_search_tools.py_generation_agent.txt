@@ -1,0 +1,75 @@
+The content of the file (source code) is as follows:
+```python
+from langchain.tools import Tool
+from langchain_community.tools import DuckDuckGoSearchRun, ArxivQueryRun, WikipediaQueryRun
+from langchain_community.utilities import DuckDuckGoSearchAPIWrapper, ArxivAPIWrapper, WikipediaAPIWrapper
+
+search = DuckDuckGoSearchRun()
+web_search_tool = Tool(
+    name='search_web',
+    func=search.run,
+    description='searches the internet for information'
+)
+
+api_wrapper = WikipediaAPIWrapper(top_k_results=5, doc_content_chars_max=1000)
+wiki = WikipediaQueryRun(api_wrapper=api_wrapper)
+wiki_tool = Tool(
+    name='wiki_tool',
+    func=wiki.run,
+    description='Useful for getting quick, factual information about people, places or events'
+)
+
+arx = ArxivAPIWrapper(top_k_results=3)
+arxiv = ArxivQueryRun(api_wrapper=arx)
+arxiv_tool = Tool(
+    name='arxiv_tool',
+    func=arxiv.run,
+    description='Useful for retrieving in-depth scientific information through academic papers from Arxiv.org'
+)
+```
+
+Explanation of Every Class and Function:
+- **Imports**: The code imports necessary classes and functions from the `langchain` and `langchain_community` libraries:
+  - `Tool` from `langchain.tools` to create tools for various search functionalities.
+  - `DuckDuckGoSearchRun`, `ArxivQueryRun`, and `WikipediaQueryRun` for performing searches on their respective platforms.
+  - `DuckDuckGoSearchAPIWrapper`, `ArxivAPIWrapper`, and `WikipediaAPIWrapper` for wrapping the API calls to these services.
+
+- **DuckDuckGo Search Tool**:
+  - **`search`**: An instance of `DuckDuckGoSearchRun` that handles search queries to DuckDuckGo.
+  - **`web_search_tool`**: A `Tool` instance that wraps the `search.run` method, allowing it to be called as a tool for searching the internet. It is described as "searches the internet for information".
+
+- **Wikipedia Search Tool**:
+  - **`api_wrapper`**: An instance of `WikipediaAPIWrapper` configured to return the top 5 results and limit document content to 1000 characters.
+  - **`wiki`**: An instance of `WikipediaQueryRun` that uses the `api_wrapper` to perform queries.
+  - **`wiki_tool`**: A `Tool` instance that wraps the `wiki.run` method, described as "Useful for getting quick, factual information about people, places or events".
+
+- **Arxiv Search Tool**:
+  - **`arx`**: An instance of `ArxivAPIWrapper` configured to return the top 3 results.
+  - **`arxiv`**: An instance of `ArxivQueryRun` that uses the `arx` API wrapper to perform queries.
+  - **`arxiv_tool`**: A `Tool` instance that wraps the `arxiv.run` method, described as "Useful for retrieving in-depth scientific information through academic papers from Arxiv.org".
+
+Input/Output Examples:
+1. **DuckDuckGo Search**:
+   - **Input**: When `web_search_tool.func("search term")` is called.
+   - **Output**: Returns search results from DuckDuckGo based on the input search term.
+
+2. **Wikipedia Query**:
+   - **Input**: When `wiki_tool.func("Python programming language")` is called.
+   - **Output**: Returns a summary or relevant information about the Python programming language from Wikipedia.
+
+3. **Arxiv Query**:
+   - **Input**: When `arxiv_tool.func("machine learning")` is called.
+   - **Output**: Returns a list of academic papers related to machine learning from Arxiv.org.
+
+Called functions information:
+- **`DuckDuckGoSearchRun.run()`**: This method executes a search query against DuckDuckGo and returns the results. It is essential for enabling web search functionality.
+
+- **`WikipediaAPIWrapper`**: This class wraps the API calls to Wikipedia, allowing for easy retrieval of information. It is configured with parameters like `top_k_results` and `doc_content_chars_max` to control the output.
+
+- **`WikipediaQueryRun.run()`**: This method executes a query against the Wikipedia API and returns the results. It is used to fetch quick factual information.
+
+- **`ArxivAPIWrapper`**: This class wraps the API calls to Arxiv, allowing for retrieval of academic papers. It is configured to specify how many results to return.
+
+- **`ArxivQueryRun.run()`**: This method executes a query against the Arxiv API and returns the results. It is used to fetch in-depth scientific information.
+
+Overall, this code sets up a series of tools for searching the web, retrieving information from Wikipedia, and accessing academic papers from Arxiv. Each tool is designed to provide specific functionalities, making it easy to integrate these capabilities into larger applications.

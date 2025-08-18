@@ -1,0 +1,135 @@
+
+The file content (source code):
+from langchain_core.tools import Tool
+from datetime import datetime
+
+
+allowed_status = {
+    'came to office',
+    'work from home',
+    'leave',
+    'sick leave'
+}
+
+def update_txt_status(option:str):
+    option = option.lower().strip()
+    if option not in allowed_status:
+        return f"Invalid status option. Please choose one of: {', '.join(allowed_status)}"
+    
+    
+    timestamp = datetime.now().strftime('%D %I:%M:%S %p')
+    
+    entry = f'[{timestamp}] STATUS: {option.title()}\n'
+
+    try:
+        with open("logs\\status_logs.txt", "a", encoding="utf-8") as f:
+            f.write(entry)
+        return f"✅ Status '{option.title()}' logged at {timestamp}."
+    except Exception as e:
+        return str(f"Failed to log status: {e}")
+
+log_status_tool = Tool(
+    name= 'update_text_status',
+    func= update_txt_status,
+    description= 'writes your work status in the file based on the given option'
+)
+(-Source code ends-)
+
+This is the code-level documentation for the source code and Reviewer agent's comments. Please IMPROVE the documentation according to the SUGGESTIONS, which involves adding missing function descriptions, input/output examples, or improving the clarity of the documentation. 
+DO NOT DELETE/REMOVE any part of the existing documentation.
+Your output should be the SAME FORMAT as the existing documentation, with the necessary improvements. 
+
+Context: 
+# log_status.py
+
+## Overview:
+The `log_status.py` file is designed to facilitate the logging of user work statuses into a text file. It provides a simple interface for users to update their status, ensuring that only predefined valid statuses are accepted. The key components of this file include the definition of allowed statuses, a function to handle the logging process, and the integration of this function into a tool that can be utilized within a larger application framework. The file leverages Python's built-in `datetime` module to timestamp each log entry, enhancing the utility of the logged information.
+
+## FunctionDef update_txt_status
+
+The `update_txt_status` function is the core functionality of this file, responsible for logging the user's work status based on the provided input. It validates the input against a predefined set of allowed statuses, generates a timestamp, and writes the log entry to a specified text file.
+
+### Method update_txt_status
+
+**Parameters**:
+- `option` (str): A string representing the user's status. It should be one of the predefined valid statuses.
+
+**Returns**:
+- A string message indicating the success or failure of the logging operation. If the status is valid and logged successfully, it returns a success message. If the status is invalid, it returns an error message. If there is an issue with file writing, it returns an error message detailing the failure.
+
+**Note**: 
+- The function is case-insensitive and trims whitespace from the input. 
+- It is crucial to ensure that the file path for `status_logs.txt` is correct and accessible to avoid file writing errors.
+
+### Examples:
+**Input Examples**: 
+
+```python
+update_txt_status("work from home")
+```
+This input represents a valid status option that the user wishes to log.
+
+**Output Example**:
+
+```
+"✅ Status 'Work From Home' logged at 12/31/23 01:23:45 PM."
+```
+This output indicates that the status was successfully logged, along with the timestamp of the logging action.
+
+**Input Examples**: 
+
+```python
+update_txt_status("on vacation")
+```
+This input represents an invalid status option that is not included in the allowed statuses.
+
+**Output Example**:
+
+```
+"Invalid status option. Please choose one of: came to office, work from home, leave, sick leave."
+```
+This output indicates that the provided status is not valid and lists the acceptable options.
+
+**Input Examples**: 
+
+```python
+update_txt_status("came to office")
+```
+This input represents a valid status option.
+
+**Output Example**:
+
+```
+"Failed to log status: [error message]"
+```
+This output indicates that there was an issue with logging the status, such as a file access error.
+
+## Called_functions:
+- **`datetime.now()`**: This function retrieves the current date and time, which is essential for creating a timestamp for each log entry. It ensures that the logged status is associated with the exact time it was recorded.
+
+- **`open()`**: This built-in function is used to open the log file in append mode. It allows the function to add new entries to the existing log without overwriting previous entries, maintaining a complete history of logged statuses.
+
+- **`write()`**: This method is called on the file object to write the log entry to the file. It is crucial for persisting the logged status information.
+
+- **`Tool`**: The `Tool` class from `langchain_core.tools` is utilized to create a tool that wraps the `update_txt_status` function. This integration allows the function to be used as part of a larger application, providing a structured way to log user statuses.
+
+Overall, this code provides a straightforward and effective mechanism for users to log their work statuses, ensuring that only valid inputs are accepted and providing clear feedback on the logging process.
+`Generated documentation`
+(-Documentation ends-)
+
+Reviewer agent suggestions:
+1. **Function Description for `update_txt_status`**: While the parameters and return values are well described, consider adding a brief description of what the function does at the beginning of the function documentation. For example: "Logs the user's work status to a text file after validating the input against predefined statuses."
+
+2. **Clarification on Allowed Statuses**: In the "Note" section, it would be beneficial to explicitly mention what the predefined valid statuses are. This could help users understand what inputs are acceptable without needing to look at the code.
+
+3. **Input/Output Examples Consistency**: The examples section has multiple "Input Examples" headings. To improve clarity, consider changing these to "Example Input" and "Example Output" to clearly differentiate between the two.
+
+4. **Error Handling Example**: In the output example for the valid status logging, the error message is vague ("[error message]"). It would be helpful to provide a more specific example of what kind of error messages might be returned, such as "Failed to log status: File not found" or "Failed to log status: Permission denied."
+
+5. **Timestamp Format Clarification**: In the output examples, the timestamp format is shown as "12/31/23 01:23:45 PM." It would be useful to clarify this format in the documentation, perhaps in the "Returns" section, to inform users about the expected format of the timestamp.
+
+6. **Integration with Larger Application**: In the overview, consider adding a sentence about how the `Tool` class integrates with the `update_txt_status` function. This could help users understand the context in which this function is used and its importance in the larger application framework.
+
+7. **Additional Examples**: Consider adding more diverse examples, such as logging a status with leading/trailing spaces (e.g., `"  work from home  "`) to demonstrate the case insensitivity and whitespace trimming feature.
+
+8. **Function Usage Context**: It may be helpful to include a brief note on how to call the `update_txt_status` function within the context of the larger application, especially if it is intended to be used as a tool. This could guide users on how to implement it effectively.

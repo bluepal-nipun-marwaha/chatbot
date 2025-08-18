@@ -1,0 +1,211 @@
+
+The file content (source code):
+import imaplib
+import email
+import datetime
+import os
+import re
+
+from email.header import decode_header
+from langchain_core.tools import Tool
+from dotenv import load_dotenv
+load_dotenv()
+
+LOG_FILE = "logs/mail_logs.txt"
+
+def log_to_file(msg):
+    timestamp = datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
+    line = f"{timestamp} {msg}"
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
+        f.write(line + "\n")
+
+def fetch_and_log_emails(query: str = "") -> str:
+    username = os.getenv("MAIL_ID")
+    password = os.getenv("MAIL_PW")
+    imap_host = "imap.mail.yahoo.com"
+
+    try:
+        days = 7
+        match = re.search(r"\d+", query)
+        if match:
+            days = int(match.group(0))
+
+        with open(LOG_FILE, "w", encoding="utf-8") as f:
+            f.write('')
+
+        since_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%d-%b-%Y")
+
+        imap = imaplib.IMAP4_SSL(imap_host)
+        imap.login(username, password)
+        imap.select("INBOX")
+
+        status, messages = imap.search(None, f'SINCE {since_date}')
+        if status != "OK":
+            return "Failed to search emails."
+
+        email_ids = messages[0].split()
+        if not email_ids:
+            return f"No emails found from the past {days} day(s)."
+
+        for eid in email_ids:
+            _, msg_data = imap.fetch(eid, "(RFC822)")
+            for response_part in msg_data:
+                if isinstance(response_part, tuple):
+                    msg = email.message_from_bytes(response_part[1])
+
+                    subject, encoding = decode_header(msg.get("Subject", "No Subject"))[0]
+                    if isinstance(subject, bytes):
+                        subject = subject.decode(encoding or "utf-8", errors="ignore")
+
+                    from_, encoding = decode_header(msg.get("From", "Unknown Sender"))[0]
+                    if isinstance(from_, bytes):
+                        from_ = from_.decode(encoding or "utf-8", errors="ignore")
+
+                    date = msg.get("Date", "Unknown Date")
+
+                    log_to_file(f"Subject: {subject}")
+                    log_to_file(f"From: {from_}")
+                    log_to_file(f"Date: {date}")
+                    log_to_file("Body:")
+
+                    body = ""
+                    if msg.is_multipart():
+                        for part in msg.walk():
+                            if part.get_content_type() == "text/plain" and not part.get("Content-Disposition"):
+                                try:
+                                    body = part.get_payload(decode=True).decode(part.get_content_charset() or "utf-8", errors="ignore")
+                                    break
+                                except:
+                                    continue
+                    else:
+                        payload = msg.get_payload(decode=True)
+                        if payload:
+                            try:
+                                body = payload.decode(msg.get_content_charset() or "utf-8", errors="ignore")
+                            except:
+                                body = str(payload)
+
+                    for line in body.strip().splitlines():
+                        log_to_file(line.strip())
+
+                    log_to_file("-" * 50)
+
+        imap.logout()
+        return f"Logged {len(email_ids)} emails from the past {days} day(s)."
+
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+email_logger_tool = Tool(
+    name="log_recent_emails",
+    func=fetch_and_log_emails,
+    description="Logs all emails from the past N days into a file. Use like: 'log emails from last 5 days'"
+)
+(-Source code ends-)
+
+This is the code-level documentation for the source code and Reviewer agent's comments. Please IMPROVE the documentation according to the SUGGESTIONS, which involves adding missing function descriptions, input/output examples, or improving the clarity of the documentation. 
+DO NOT DELETE/REMOVE any part of the existing documentation.
+Your output should be the SAME FORMAT as the existing documentation, with the necessary improvements. 
+
+Context: 
+# mail_saver.py
+
+## Overview:
+The `mail_saver.py` file is designed to connect to an email server using the IMAP protocol, fetch recent emails, and log their details into a specified log file. The key components of this file include functions for logging messages, fetching emails based on a user-defined query, and handling email parsing. The code utilizes environment variables to securely manage email credentials, ensuring that sensitive information is not hardcoded. The main function, `fetch_and_log_emails`, processes emails from the past N days, where N can be specified by the user. The file also integrates with the `langchain_core.tools` library to create a tool that can be used in larger applications.
+
+## FunctionDef log_to_file
+
+The `log_to_file` function is responsible for logging messages to a specified log file with a timestamp. This function is essential for maintaining a record of the email details that are fetched.
+
+### Method log_to_file
+**Parameters**:
+- `msg`: A string containing the message to log.
+
+**Returns**: None
+
+**Note**: This function appends messages to the log file, which means that previous log entries will not be overwritten. Ensure that the log file path is accessible and writable.
+
+#### Examples:
+**Input Examples**: 
+```python
+log_to_file("Email fetched successfully.")
+```
+
+**Output Example**:
+```
+[2023-10-01 12:00:00] Email fetched successfully.
+```
+
+## FunctionDef fetch_and_log_emails
+
+The `fetch_and_log_emails` function connects to an email server, retrieves emails based on a specified query, and logs their details into a file. It is the core functionality of the script, allowing users to specify how many days back they want to search for emails.
+
+### Method fetch_and_log_emails
+**Parameters**:
+- `query`: A string that may contain the number of days to look back for emails (default is an empty string).
+
+**Returns**: A string message indicating the result of the operation, such as the number of emails logged or an error message.
+
+**Note**: The function handles various exceptions, including connection issues and parsing errors. Users should ensure that their email credentials are correctly set in the environment variables.
+
+#### Examples:
+**Input Examples**: 
+```python
+fetch_and_log_emails("log emails from last 5 days")
+```
+
+**Output Example**:
+```
+Logged 3 emails from the past 5 day(s).
+```
+
+**Input Examples**: 
+```python
+fetch_and_log_emails("log emails from last 30 days")
+```
+
+**Output Example**:
+```
+No emails found from the past 30 day(s).
+```
+
+## Called_functions:
+- **`os.getenv()`**: This function retrieves the email ID and password from environment variables, ensuring that sensitive information is not hardcoded into the script. It is crucial for maintaining security.
+
+- **`imaplib.IMAP4_SSL()`**: Establishes a secure connection to the email server using the IMAP protocol. This is essential for securely accessing email data.
+
+- **`email.message_from_bytes()`**: Converts raw email bytes into a message object, allowing for easier manipulation and extraction of headers and body content.
+
+- **`decode_header()`**: This function decodes email headers that may be encoded in different formats, ensuring that subjects and sender names are correctly displayed. It is important for handling internationalized email headers.
+
+- **`open()`**: Used to open the log file for writing. The function clears the log file at the start of the logging process and appends new log entries thereafter.
+
+Overall, this code provides a robust solution for fetching and logging recent emails, making it easier for users to track their email communications. The handling of various email formats and the structured logging of information contribute to its effectiveness. 
+
+### Suggestions:
+- Consider adding more error handling for specific cases, such as invalid email credentials or network issues.
+- It may be beneficial to implement a configuration file or command-line arguments for more flexible user input regarding email settings and logging preferences.
+- Adding unit tests for the functions could improve reliability and facilitate future changes.
+`Generated documentation`
+(-Documentation ends-)
+
+Reviewer agent suggestions:
+1. **Function Description for Missing Functions**: If there are any additional functions in the code that are not documented, please add a brief description of their purpose, parameters, and return values. This will provide a complete overview of the functionality available in the `mail_saver.py` file.
+
+2. **Clarification on Parameters**: For the `fetch_and_log_emails` function, clarify the `query` parameter. Instead of stating it "may contain the number of days to look back for emails," specify that it should be a string formatted as "log emails from last X days," where X is a positive integer. This will help users understand the expected input format.
+
+3. **Expand Examples Section**: In the `fetch_and_log_emails` function, consider adding more diverse examples to the Examples section. For instance, include examples with different queries, such as:
+   - Fetching emails without specifying a time frame.
+   - Fetching emails with invalid queries to demonstrate error handling.
+
+4. **Output Message Consistency**: Ensure that the output examples in the `fetch_and_log_emails` function are consistent in terms of formatting. For instance, if the first output example uses "day(s)," the second should also use the same format for clarity and consistency.
+
+5. **Enhance the Overview Section**: The overview could benefit from a brief mention of the libraries used (like `imaplib` and `email`) and their roles in the functionality of the script. This will provide users with context on the dependencies and their importance.
+
+6. **Add Security Note**: In the overview, consider adding a note about the importance of securing environment variables and not sharing them, as this is crucial for maintaining the security of email credentials.
+
+7. **Error Handling Section**: It would be helpful to include a section on error handling in the documentation. Describe common exceptions that might be raised during the execution of the functions and how users can handle them effectively.
+
+8. **Function Return Values**: For both functions, consider providing more detailed descriptions of the return values. For example, specify what kind of error messages might be returned in `fetch_and_log_emails` and under what circumstances.
+
+By implementing these suggestions, the documentation will be clearer, more comprehensive, and more user-friendly, enhancing the overall quality and usability of the `mail_saver.py` file.
