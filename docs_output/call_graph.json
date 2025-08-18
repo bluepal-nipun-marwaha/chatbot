@@ -1,6 +1,6 @@
 {
     "1_profile_page::(global)": {
-        "uid": "node_4458c03a",
+        "uid": "node_39d72ff3",
         "name": "1_profile_page::(global)",
         "content": "",
         "callers": [],
@@ -16,7 +16,7 @@
         "file_name": "/workspace/pages/1_profile_page.py"
     },
     "2_mail_reader::(global)": {
-        "uid": "node_28697866",
+        "uid": "node_de95b3df",
         "name": "2_mail_reader::(global)",
         "content": "",
         "callers": [],
@@ -49,7 +49,7 @@
         "file_name": "/workspace/pages/2_mail_reader.py"
     },
     "2_mail_reader::add_email": {
-        "uid": "node_9d18ed18",
+        "uid": "node_e455d559",
         "name": "2_mail_reader::add_email",
         "content": "\n\ndef add_email(name, email):\n    try:\n        cursor.execute('INSERT INTO emails (name, email) VALUES (?, ?)', (name, email))\n        conn.commit()\n        return True\n    except sqlite3.IntegrityError:\n        return False\n",
         "callers": [
@@ -62,7 +62,7 @@
         "file_name": "/workspace/pages/2_mail_reader.py"
     },
     "2_mail_reader::get_all_emails": {
-        "uid": "node_d145d5fb",
+        "uid": "node_953315de",
         "name": "2_mail_reader::get_all_emails",
         "content": "\n\ndef get_all_emails():\n    cursor.execute('SELECT * FROM emails')\n    return cursor.fetchall()\n",
         "callers": [
@@ -76,7 +76,7 @@
         "file_name": "/workspace/pages/2_mail_reader.py"
     },
     "2_mail_reader::reset_email": {
-        "uid": "node_2e1ca03e",
+        "uid": "node_cb3d99ca",
         "name": "2_mail_reader::reset_email",
         "content": "\n\ndef reset_email():\n    try:\n        cursor.execute('DELETE FROM emails')\n        conn.commit()\n        return True\n    except sqlite3.IntegrityError:\n        return False\n",
         "callers": [
@@ -89,7 +89,7 @@
         "file_name": "/workspace/pages/2_mail_reader.py"
     },
     "2_mail_reader::write_emails": {
-        "uid": "node_d81b3126",
+        "uid": "node_9c359e13",
         "name": "2_mail_reader::write_emails",
         "content": "\n\ndef write_emails():\n    mail_list = get_all_emails()\n    with open('email_list.json', 'w') as f:\n        json.dump(mail_list, f)\n",
         "callers": [
@@ -626,6 +626,7 @@
         "name": "EXTERNAL::print",
         "content": "",
         "callers": [
+            "file2::summarize_repo",
             "file::print_repoagent_summary",
             "monitor::(global)",
             "monitor::fetch_unread_from_senders",
@@ -878,7 +879,7 @@
         "file_name": "EXTERNAL"
     },
     "agent_supervisor::(global)": {
-        "uid": "node_72694b5b",
+        "uid": "node_7a6e0d2f",
         "name": "agent_supervisor::(global)",
         "content": "",
         "callers": [],
@@ -897,7 +898,7 @@
         "file_name": "/workspace/agent_supervisor.py"
     },
     "chat_bot::(global)": {
-        "uid": "node_ba24056f",
+        "uid": "node_03e8415c",
         "name": "chat_bot::(global)",
         "content": "",
         "callers": [],
@@ -919,8 +920,30 @@
         ],
         "file_name": "/workspace/chat_bot.py"
     },
+    "file2::(global)": {
+        "uid": "node_e256bb11",
+        "name": "file2::(global)",
+        "content": "",
+        "callers": [],
+        "callees": [
+            "file2::summarize_repo"
+        ],
+        "file_name": "/workspace/tools/file2.py"
+    },
+    "file2::summarize_repo": {
+        "uid": "node_ff6ed791",
+        "name": "file2::summarize_repo",
+        "content": "\n\ndef summarize_repo():\n    summary = '\\n    \ud83d\udcd8 Repo: docAider\\n\\n    docAider is a multi-agent system that automates code documentation\\n    using Semantic Kernel and Autogen. It generates, reviews, and updates\\n    documentation for repositories through orchestrated agents.\\n\\n    Key Features:\\n    - Automates initial documentation generation.\\n    - Multi-agent workflow:\\n        \u2022 CodeContextAgent \u2192 explains code.\\n        \u2022 DocumentationGenerationAgent \u2192 writes docs.\\n        \u2022 ReviewAgent \u2192 improves docs.\\n        \u2022 AgentManager \u2192 orchestrates the workflow.\\n    - Produces outputs like docs, prompts, call graphs, and flow diagrams.\\n    - Supports GitHub Actions workflows for continuous documentation updates.\\n    - Helps untangle complex code, find unused functions, and onboard developers faster.\\n\\n    Usage:\\n    - Run via Docker (`docker compose up --build`).\\n    - Generate documentation (`docker exec docAider python3 /docAider/repo_documentation/multi_agent_app.py`).\\n    - Set up workflows (`docker exec docAider python3 /docAider/setup_workflows.py`).\\n    - Workflows:\\n        \u2022 update-docs.yml \u2192 auto-updates docs on PRs.\\n        \u2022 update-comments.yml \u2192 lets users request doc changes via comments.\\n    '\n    print(summary)\n",
+        "callers": [
+            "file2::(global)"
+        ],
+        "callees": [
+            "EXTERNAL::print"
+        ],
+        "file_name": "/workspace/tools/file2.py"
+    },
     "file::(global)": {
-        "uid": "node_cf3d01c6",
+        "uid": "node_616592f3",
         "name": "file::(global)",
         "content": "",
         "callers": [],
@@ -930,7 +953,7 @@
         "file_name": "/workspace/tools/file.py"
     },
     "file::print_repoagent_summary": {
-        "uid": "node_7cc40cf3",
+        "uid": "node_f79a98ca",
         "name": "file::print_repoagent_summary",
         "content": "\n\ndef print_repoagent_summary():\n    summary = {'Classes': {'GitHubFile': 'Holds GitHub file information (content, path, URL).', 'RepositoryInfo': 'Holds repository info (name, URL, contents).', 'RepoAgent': 'Specialized agent for GitHub repos. Supports FULL_CONTEXT & RAG modes.'}, 'Key Methods': {'__init__': 'Initialize RepoAgent with retriever, model, repos, etc.', 'parse_url': 'Parse GitHub URL \u2192 (owner, repo_name).', 'load_repositories': 'Load contents of multiple repos.', 'load_repository': 'Load a single repo using GitHub client.', 'count_tokens': 'Return number of tokens.', 'construct_full_text': 'Concatenate repos into full context text.', 'add_repositories': 'Add new repo(s) to context.', 'check_switch_mode': 'Check if switching to RAG mode is needed.', 'step': 'Retrieve context + pass input to model.', 'reset': 'Reset agent state.', 'search_by_file_path': 'Search and reconstruct file contents by path.'}}\n    print('\\n=== RepoAgent Summary ===\\n')\n    print('Classes:')\n    for (cls, desc) in summary['Classes'].items():\n        print(f'- {cls}: {desc}')\n    print('\\nMethods:')\n    for (method, desc) in summary['Key Methods'].items():\n        print(f'- {method}(): {desc}')\n",
         "callers": [
@@ -946,7 +969,7 @@
         "file_name": "/workspace/tools/file.py"
     },
     "log_status::(global)": {
-        "uid": "node_b5a3f839",
+        "uid": "node_dc48f012",
         "name": "log_status::(global)",
         "content": "",
         "callers": [],
@@ -956,7 +979,7 @@
         "file_name": "/workspace/tools/log_status.py"
     },
     "log_status::update_txt_status": {
-        "uid": "node_98ef9bf5",
+        "uid": "node_f4bab328",
         "name": "log_status::update_txt_status",
         "content": "\n\ndef update_txt_status(option: str):\n    option = option.lower().strip()\n    if (option not in allowed_status):\n        return f\"Invalid status option. Please choose one of: {', '.join(allowed_status)}\"\n    timestamp = datetime.now().strftime('%D %I:%M:%S %p')\n    entry = f'''[{timestamp}] STATUS: {option.title()}\n'''\n    try:\n        with open('logs\\\\status_logs.txt', 'a', encoding='utf-8') as f:\n            f.write(entry)\n        return f\"\u2705 Status '{option.title()}' logged at {timestamp}.\"\n    except Exception as e:\n        return str(f'Failed to log status: {e}')\n",
         "callers": [],
@@ -968,7 +991,7 @@
         "file_name": "/workspace/tools/log_status.py"
     },
     "mail_reader::(global)": {
-        "uid": "node_8894e151",
+        "uid": "node_12683225",
         "name": "mail_reader::(global)",
         "content": "",
         "callers": [],
@@ -978,7 +1001,7 @@
         "file_name": "/workspace/tools/mail_reader.py"
     },
     "mail_reader::get_recent_emails": {
-        "uid": "node_2c8a831e",
+        "uid": "node_3e251ea9",
         "name": "mail_reader::get_recent_emails",
         "content": "\n\ndef get_recent_emails(query: str='') -> str:\n    try:\n        q = query.lower()\n        sender_filter = None\n        today_only = False\n        count_mode = False\n        match_sender = re.search('(?:from|by|did)\\\\s+([\\\\w\\\\s.@<>\\\\\"\\']+)', q)\n        if match_sender:\n            sender_filter = match_sender.group(1).strip()\n        if ('today' in q):\n            today_only = True\n        if ('how many' in q):\n            count_mode = True\n        elif ('did' in q):\n            count_mode = 'boolean'\n        limit = (1 if count_mode else 5)\n        match_limit = re.search('(\\\\d+)', q)\n        if (match_limit and (not count_mode)):\n            limit = int(match_limit.group(1))\n        emails = parse_mail_log(limit=None)\n        today = datetime.now().date()\n        filtered = []\n        for email in emails:\n            sender = email.get('From', '').lower()\n            date_str = email.get('Date', '')\n            try:\n                mail_date = dateparser.parse(date_str).date()\n            except Exception:\n                continue\n            if (sender_filter and (sender_filter.lower() not in sender)):\n                continue\n            if (today_only and (mail_date != today)):\n                continue\n            filtered.append(email)\n        if (count_mode == True):\n            return f\"{len(filtered)} email(s) from {(sender_filter or 'the sender')} today.\"\n        if (count_mode == 'boolean'):\n            return (f'Yes, {sender_filter} sent you email(s) today.' if filtered else f'No, nothing from {sender_filter} today.')\n        if (not filtered):\n            return 'No matching emails found.'\n        output = []\n        for (i, email) in enumerate(filtered[(- limit):], 1):\n            output.append(f'''Email {i}:\nSubject: {email.get('Subject', '[Missing]')}\nFrom: {email.get('From', '[Missing]')}\nDate: {email.get('Date', '[Missing]')}\nBody:\n{email.get('Body', '[No Body]')}\n''')\n        return '\\n'.join(output)\n    except Exception as e:\n        return f'Failed to parse email log: {e}'\n",
         "callers": [],
@@ -995,7 +1018,7 @@
         "file_name": "/workspace/tools/mail_reader.py"
     },
     "mail_reader::parse_mail_log": {
-        "uid": "node_68d072be",
+        "uid": "node_06f626ba",
         "name": "mail_reader::parse_mail_log",
         "content": "\n\ndef parse_mail_log(filepath='logs/mail_logs.txt', limit=None):\n    with open(filepath, 'r', encoding='utf-8') as f:\n        lines = f.readlines()\n    emails = []\n    current = {}\n    body_lines = []\n    collecting_body = False\n    for line in lines:\n        line = line.strip()\n        if ('Subject:' in line):\n            if (current and ('Subject' in current)):\n                current['Body'] = '\\n'.join(body_lines)\n                emails.append(current)\n            current = {}\n            body_lines = []\n            collecting_body = False\n            current['Subject'] = line.split('Subject:')[1].strip()\n        elif ('From:' in line):\n            current['From'] = line.split('From:')[1].strip()\n        elif ('Date:' in line):\n            current['Date'] = line.split('Date:')[1].strip()\n        elif ('Body:' in line):\n            collecting_body = True\n        elif ('--------------------------------------------------' in line):\n            collecting_body = False\n            current['Body'] = '\\n'.join(body_lines)\n            emails.append(current)\n            current = {}\n            body_lines = []\n        elif collecting_body:\n            body_lines.append(line.split(']')[(- 1)].strip())\n    if (current and ('Subject' in current)):\n        current['Body'] = '\\n'.join(body_lines)\n        emails.append(current)\n    return (emails[(- limit):] if limit else emails)\n",
         "callers": [
@@ -1007,7 +1030,7 @@
         "file_name": "/workspace/tools/mail_reader.py"
     },
     "mail_saver::(global)": {
-        "uid": "node_4d35d98b",
+        "uid": "node_d9b17047",
         "name": "mail_saver::(global)",
         "content": "",
         "callers": [],
@@ -1018,7 +1041,7 @@
         "file_name": "/workspace/tools/mail_saver.py"
     },
     "mail_saver::fetch_and_log_emails": {
-        "uid": "node_39b266c6",
+        "uid": "node_4ae0a1ef",
         "name": "mail_saver::fetch_and_log_emails",
         "content": "\n\ndef fetch_and_log_emails(query: str='') -> str:\n    username = os.getenv('MAIL_ID')\n    password = os.getenv('MAIL_PW')\n    imap_host = 'imap.mail.yahoo.com'\n    try:\n        days = 7\n        match = re.search('\\\\d+', query)\n        if match:\n            days = int(match.group(0))\n        with open(LOG_FILE, 'w', encoding='utf-8') as f:\n            f.write('')\n        since_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime('%d-%b-%Y')\n        imap = imaplib.IMAP4_SSL(imap_host)\n        imap.login(username, password)\n        imap.select('INBOX')\n        (status, messages) = imap.search(None, f'SINCE {since_date}')\n        if (status != 'OK'):\n            return 'Failed to search emails.'\n        email_ids = messages[0].split()\n        if (not email_ids):\n            return f'No emails found from the past {days} day(s).'\n        for eid in email_ids:\n            (_, msg_data) = imap.fetch(eid, '(RFC822)')\n            for response_part in msg_data:\n                if isinstance(response_part, tuple):\n                    msg = email.message_from_bytes(response_part[1])\n                    (subject, encoding) = decode_header(msg.get('Subject', 'No Subject'))[0]\n                    if isinstance(subject, bytes):\n                        subject = subject.decode((encoding or 'utf-8'), errors='ignore')\n                    (from_, encoding) = decode_header(msg.get('From', 'Unknown Sender'))[0]\n                    if isinstance(from_, bytes):\n                        from_ = from_.decode((encoding or 'utf-8'), errors='ignore')\n                    date = msg.get('Date', 'Unknown Date')\n                    log_to_file(f'Subject: {subject}')\n                    log_to_file(f'From: {from_}')\n                    log_to_file(f'Date: {date}')\n                    log_to_file('Body:')\n                    body = ''\n                    if msg.is_multipart():\n                        for part in msg.walk():\n                            if ((part.get_content_type() == 'text/plain') and (not part.get('Content-Disposition'))):\n                                try:\n                                    body = part.get_payload(decode=True).decode((part.get_content_charset() or 'utf-8'), errors='ignore')\n                                    break\n                                except:\n                                    continue\n                    else:\n                        payload = msg.get_payload(decode=True)\n                        if payload:\n                            try:\n                                body = payload.decode((msg.get_content_charset() or 'utf-8'), errors='ignore')\n                            except:\n                                body = str(payload)\n                    for line in body.strip().splitlines():\n                        log_to_file(line.strip())\n                    log_to_file(('-' * 50))\n        imap.logout()\n        return f'Logged {len(email_ids)} emails from the past {days} day(s).'\n    except Exception as e:\n        return f'Error: {str(e)}'\n",
         "callers": [],
@@ -1050,7 +1073,7 @@
         "file_name": "/workspace/tools/mail_saver.py"
     },
     "mail_saver::log_to_file": {
-        "uid": "node_019316f6",
+        "uid": "node_7bf9b0ea",
         "name": "mail_saver::log_to_file",
         "content": "\n\ndef log_to_file(msg):\n    timestamp = datetime.datetime.now().strftime('[%Y-%m-%d %H:%M:%S]')\n    line = f'{timestamp} {msg}'\n    with open(LOG_FILE, 'a', encoding='utf-8') as f:\n        f.write((line + '\\n'))\n",
         "callers": [
@@ -1063,7 +1086,7 @@
         "file_name": "/workspace/tools/mail_saver.py"
     },
     "monitor::(global)": {
-        "uid": "node_e446021d",
+        "uid": "node_572501f5",
         "name": "monitor::(global)",
         "content": "",
         "callers": [],
@@ -1088,7 +1111,7 @@
         "file_name": "/workspace/monitor.py"
     },
     "monitor::fetch_unread_from_senders": {
-        "uid": "node_e1c83647",
+        "uid": "node_44f5060b",
         "name": "monitor::fetch_unread_from_senders",
         "content": "\n\ndef fetch_unread_from_senders(senders: set):\n    try:\n        mail = imaplib.IMAP4_SSL(IMAP_SERVER)\n        mail.login(EMAIL, PASSWORD)\n        mail.select('inbox')\n        (status, messages) = mail.search(None, '(UNSEEN)')\n        if (status != 'OK'):\n            return []\n        unread_ids = messages[0].split()\n        matched = []\n        for uid in unread_ids:\n            (res, msg_data) = mail.fetch(uid, '(RFC822)')\n            if (res != 'OK'):\n                continue\n            msg = email.message_from_bytes(msg_data[0][1])\n            from_header = email.utils.parseaddr(msg['From'])[1]\n            if (from_header in senders):\n                matched.append(from_header)\n        mail.logout()\n        return matched\n    except Exception as e:\n        print(f'\u274c Error during email check: {e}')\n        return []\n",
         "callers": [
@@ -1103,7 +1126,7 @@
         "file_name": "/workspace/monitor.py"
     },
     "repo_scanner::(global)": {
-        "uid": "node_d4db0d22",
+        "uid": "node_6d8c4459",
         "name": "repo_scanner::(global)",
         "content": "",
         "callers": [],
@@ -1129,7 +1152,7 @@
         "file_name": "/workspace/scanner/repo_scanner.py"
     },
     "save_txt::(global)": {
-        "uid": "node_5dbb30af",
+        "uid": "node_584f5460",
         "name": "save_txt::(global)",
         "content": "",
         "callers": [],
@@ -1139,7 +1162,7 @@
         "file_name": "/workspace/tools/save_txt.py"
     },
     "save_txt::save_to_txt": {
-        "uid": "node_dbcab37c",
+        "uid": "node_086c64cd",
         "name": "save_txt::save_to_txt",
         "content": "\n\ndef save_to_txt(data: str, filename: str='logs\\\\saved_logs.txt'):\n    timestamp = datetime.now().strftime('%D %H:%M:%S')\n    formatted_text = f'''------Research Output-------\n{timestamp}\n\n{data}\n\n'''\n    with open(filename, 'a', encoding='utf-8') as f:\n        f.write(formatted_text)\n    return f'Data successfully saved to {filename}'\n",
         "callers": [],
@@ -1150,7 +1173,7 @@
         "file_name": "/workspace/tools/save_txt.py"
     },
     "search_tools::(global)": {
-        "uid": "node_7549a07b",
+        "uid": "node_a6f04154",
         "name": "search_tools::(global)",
         "content": "",
         "callers": [],
@@ -1167,7 +1190,7 @@
         "file_name": "/workspace/tools/search_tools.py"
     },
     "time_tool::(global)": {
-        "uid": "node_4862741e",
+        "uid": "node_f97854e8",
         "name": "time_tool::(global)",
         "content": "",
         "callers": [],
@@ -1179,7 +1202,7 @@
         "file_name": "/workspace/tools/time_tool.py"
     },
     "time_tool::get_current_datetime": {
-        "uid": "node_ffd88ebb",
+        "uid": "node_99fc526c",
         "name": "time_tool::get_current_datetime",
         "content": "\n\ndef get_current_datetime(query: str='') -> str:\n    timezones = {'pst': 'US/Pacific', 'cst': 'US/Central', 'est': 'US/Eastern', 'mst': 'US/Mountain', 'ist': 'Asia/Kolkata', 'gmt': 'Etc/GMT', 'utc': 'UTC', 'jst': 'Asia/Tokyo', 'cet': 'Europe/Paris', 'bst': 'Europe/London'}\n    local_tz = get_localzone()\n    local_now = datetime.now(local_tz)\n    default_msg = local_now.strftime(f'''Local Timezone: {str(local_tz)}\n %A, %d %B %Y\n %I:%M:%S %p''')\n    query = query.lower()\n    for (key, tz) in timezones.items():\n        if (key in query):\n            target_tz = pytz.timezone(tz)\n            target_time = datetime.now(target_tz)\n            return target_time.strftime(f'''Timezone: {tz}\n %A, %d %B %Y\n %I:%M:%S %p''')\n    return default_msg\n",
         "callers": [
@@ -1195,7 +1218,7 @@
         "file_name": "/workspace/tools/time_tool.py"
     },
     "timer::(global)": {
-        "uid": "node_fcec0c6b",
+        "uid": "node_35a44175",
         "name": "timer::(global)",
         "content": "",
         "callers": [],
@@ -1205,7 +1228,7 @@
         "file_name": "/workspace/tools/timer.py"
     },
     "timer::set_timer": {
-        "uid": "node_0724a8f4",
+        "uid": "node_5c5a0344",
         "name": "timer::set_timer",
         "content": "\n\ndef set_timer(user_input: str):\n    match = re.search('(\\\\d+\\\\.?\\\\d*)', user_input)\n    if (not match):\n        return 'Please specify timer duration in minutes'\n    minutes = float(match.group(1))\n    seconds = int((minutes * 60))\n    thread = Thread(target=timer_thread, args=(seconds, 'Timer is Up!'))\n    thread.daemon = False\n    thread.start()\n    return f'Timer is set up for {minutes} minute(s).'\n",
         "callers": [],
@@ -1218,7 +1241,7 @@
         "file_name": "/workspace/tools/timer.py"
     },
     "timer::timer_thread": {
-        "uid": "node_f539b2c0",
+        "uid": "node_5fea8c39",
         "name": "timer::timer_thread",
         "content": "\n\ndef timer_thread(seconds, message):\n    time.sleep(seconds)\n    notification.notify(title='Timer Finished', message=message, timeout=10)\n",
         "callers": [],
