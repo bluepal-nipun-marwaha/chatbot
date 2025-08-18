@@ -1,0 +1,75 @@
+The content of the file (source code) is as follows:
+```python
+from langchain_core.tools import Tool
+from datetime import datetime
+
+allowed_status = {
+    'came to office',
+    'work from home',
+    'leave',
+    'sick leave'
+}
+
+def update_txt_status(option: str):
+    option = option.lower().strip()
+    if option not in allowed_status:
+        return f"Invalid status option. Please choose one of: {', '.join(allowed_status)}"
+    
+    timestamp = datetime.now().strftime('%D %I:%M:%S %p')
+    
+    entry = f'[{timestamp}] STATUS: {option.title()}\n'
+
+    try:
+        with open("logs\\\\status_logs.txt", "a", encoding="utf-8") as f:
+            f.write(entry)
+        return f"✅ Status '{option.title()}' logged at {timestamp}."
+    except Exception as e:
+        return str(f"Failed to log status: {e}")
+
+log_status_tool = Tool(
+    name='update_text_status',
+    func=update_txt_status,
+    description='writes your work status in the file based on the given option'
+)
+```
+
+Explanation of Every Class and Function:
+- **Imports**: The code imports the `Tool` class from `langchain_core.tools` for creating a tool that can be used in a larger framework, and `datetime` from the `datetime` module to handle date and time operations.
+
+- **Allowed Statuses**: A set named `allowed_status` is defined, containing valid status options that a user can log. These include:
+  - 'came to office'
+  - 'work from home'
+  - 'leave'
+  - 'sick leave'
+
+- **`update_txt_status(option: str)`**: This function logs the user's work status to a text file. It takes a single argument, `option`, which is expected to be one of the allowed statuses.
+  - **Input Handling**: The function converts the input to lowercase and strips any leading or trailing whitespace.
+  - **Validation**: It checks if the provided option is in the `allowed_status` set. If not, it returns an error message indicating the valid options.
+  - **Timestamp Generation**: If the status is valid, it generates a timestamp in the format 'MM/DD/YY HH:MM:SS AM/PM'.
+  - **Log Entry Creation**: It creates a log entry string that includes the timestamp and the status.
+  - **File Writing**: The function attempts to open a file named `status_logs.txt` in append mode and writes the log entry to it. If successful, it returns a success message with the logged status and timestamp. If an error occurs during file operations, it returns an error message.
+
+- **`log_status_tool`**: An instance of the `Tool` class is created, which wraps the `update_txt_status` function. This tool can be used in a larger application to log user statuses based on the provided option.
+
+Input/Output Examples:
+1. **Valid Status Logging**:
+   - **Input**: `update_txt_status("work from home")`
+   - **Output**: Returns a message like "✅ Status 'Work From Home' logged at 12/31/23 01:23:45 PM." and appends the entry to the log file.
+
+2. **Invalid Status Logging**:
+   - **Input**: `update_txt_status("on vacation")`
+   - **Output**: Returns "Invalid status option. Please choose one of: came to office, work from home, leave, sick leave".
+
+3. **File Writing Error**:
+   - **Input**: If the file path is incorrect or the file cannot be opened, calling `update_txt_status("came to office")` might return "Failed to log status: [error message]".
+
+Called functions information:
+- **`datetime.now()`**: This function is used to get the current date and time, which is essential for timestamping the log entries.
+
+- **`open()`**: This built-in function is used to open the log file in append mode. It allows the function to add new entries without overwriting existing ones.
+
+- **`write()`**: This method is called on the file object to write the log entry to the file.
+
+- **`Tool`**: The `Tool` class is used to create a tool that can be integrated into a larger framework, allowing the `update_txt_status` function to be called as part of a toolset.
+
+Overall, this code provides a simple yet effective way to log user work statuses to a file, ensuring that only valid statuses are recorded and providing feedback on the success or failure of the logging operation.

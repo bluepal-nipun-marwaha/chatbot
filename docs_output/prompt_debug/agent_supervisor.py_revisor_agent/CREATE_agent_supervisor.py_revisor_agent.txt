@@ -1,0 +1,214 @@
+
+The file content (source code):
+from langchain_openai import ChatOpenAI
+from langgraph.prebuilt import create_react_agent
+from langgraph_supervisor import create_supervisor
+
+from dotenv import load_dotenv
+load_dotenv()
+
+from tools.search_tools import arxiv_tool, wiki_tool, web_search_tool
+from tools.log_status import log_status_tool
+from tools.save_txt import save_txt_tool
+from tools.timer import timer_tool
+from tools.time_tool import datetime_tool
+from tools.mail_reader import email_reader_tool
+from tools.mail_saver import email_logger_tool
+
+from langgraph.checkpoint.memory import MemorySaver
+memory = MemorySaver()
+
+search_agent = create_react_agent(
+    model= 'openai:gpt-4o-mini',
+    tools= [arxiv_tool, wiki_tool, web_search_tool],
+    prompt= '''You are a search assistant, that helps the user search things online
+            If you are asked about certain research, use the `arxiv_tool` to search.''',
+    name= 'search_assistant'
+)
+
+local_agent = create_react_agent(
+    model= 'openai:gpt-4o-mini',
+    tools= [save_txt_tool, log_status_tool],
+    prompt='''You are a local assistant that performs tasks on the user's device.
+            You can:
+            - Save text to a file using `save_txt_tool`
+            - Log user status using `log_status_tool`
+
+            Only use a tool if you are sure it is required.''',
+    name= 'local_assistant'
+)
+
+timer_agent = create_react_agent(
+    model= 'openai:gpt-4o-mini',
+    tools= [timer_tool],
+    prompt= 'You are an assistant that helps set up a timer on the local device',
+    name= 'timer_assistant'
+)
+
+datetime_agent = create_react_agent(
+    model= 'openai:gpt-4o-mini',
+    tools= [datetime_tool],
+    prompt= 'You are a date and time assistant, which outputs the current date and time',
+    name= 'datetime_assistant'
+)
+
+email_logging_agent = create_react_agent(
+    model= 'openai:gpt-4o-mini',
+    tools= [email_logger_tool],
+    prompt= 'You are an email logging assistant, which looks through the emails and saves them in a log file',
+    name= 'email_logging_assistant'
+)
+
+email_search_agent = create_react_agent(
+    model= 'openai:gpt-4o-mini',
+    tools= [email_reader_tool],
+    prompt= 'You are an email assistant, which looks through the email logs and gives out the desired response',
+    name= 'email_search_assistant'
+)
+
+supervisor = create_supervisor(
+    agents= [search_agent, local_agent, datetime_agent, timer_agent, email_search_agent, email_logging_agent],
+    model= ChatOpenAI(model= 'gpt-4o-mini'),
+    prompt= '''You are a supervisor managing the following agents:
+            - `search_assistant` for online research using tools like Arxiv, Wikipedia, or Web Search.
+            - `local_assistant` for file and status logging tasks.
+            - `datetime_assistant` for reporting date and time.
+            - `timer_assistant` for setting timers.
+            - `email_search_assistant` for reading previously saved email logs.
+            - `email_logging_assistant` for retrieving recent emails from the inbox and saving them to logs using the `log_recent_emails` tool. If the user asks to "log", "fetch", "save" or "record" emails from a date or duration (e.g. 'last 3 days'), this tool should be used.
+
+            Use the best-suited agent for each user request.'''
+).compile(checkpointer=memory)
+(-Source code ends-)
+
+This is the code-level documentation for the source code and Reviewer agent's comments. Please IMPROVE the documentation according to the SUGGESTIONS, which involves adding missing function descriptions, input/output examples, or improving the clarity of the documentation. 
+DO NOT DELETE/REMOVE any part of the existing documentation.
+Your output should be the SAME FORMAT as the existing documentation, with the necessary improvements. 
+
+Context: 
+# agent_supervisor.py
+
+## Overview:
+The `agent_supervisor.py` file is designed to create and manage a suite of intelligent agents that assist users with various tasks, including online research, local file management, time management, and email handling. The key components of this file include the creation of multiple agents using the `create_react_agent` function, which are tailored to specific tasks, and a supervisor that coordinates these agents to respond to user requests effectively. The agents leverage various tools for their operations, such as searching academic papers, saving text files, logging user status, setting timers, and managing emails. The use of environment variables through `load_dotenv()` ensures that sensitive configurations are handled securely.
+
+## ClassDef MemorySaver
+
+The `MemorySaver` class is responsible for maintaining the state of the agents, allowing them to remember previous interactions and manage their tasks effectively. This class is crucial for ensuring that the agents can provide context-aware responses based on the user's history and preferences.
+
+### Method MemorySaver.__init__(self)
+
+The constructor method initializes an instance of the `MemorySaver` class. It sets up any necessary attributes or data structures required for memory management.
+
+**Parameters**: None
+
+**Returns**: None
+
+**Note**: Ensure that the memory management is efficient to avoid excessive resource usage.
+
+#### Examples:
+**Input Examples**: 
+```python
+memory = MemorySaver()
+```
+
+**Output Example**:
+```python
+# No output, but an instance of MemorySaver is created.
+```
+
+## FunctionDef create_react_agent
+
+The `create_react_agent` function is used to create individual agents that can perform specific tasks. Each agent is configured with a model, tools, and a prompt that defines its behavior.
+
+**Parameters**:
+- `model`: A string representing the model to be used by the agent (e.g., 'openai:gpt-4o-mini').
+- `tools`: A list of tools that the agent can utilize for its tasks.
+- `prompt`: A string that provides context and instructions for the agent's behavior.
+- `name`: A string representing the name of the agent.
+
+**Returns**: An instance of the agent configured with the specified model, tools, and prompt.
+
+**Note**: Ensure that the tools provided are relevant to the tasks the agent is expected to perform.
+
+### Examples:
+**Input Examples**: 
+```python
+search_agent = create_react_agent(
+    model='openai:gpt-4o-mini',
+    tools=[arxiv_tool, wiki_tool, web_search_tool],
+    prompt='You are a search assistant...',
+    name='search_assistant'
+)
+```
+
+**Output Example**:
+```python
+# An instance of the search agent is created.
+```
+
+## FunctionDef create_supervisor
+
+The `create_supervisor` function creates a supervisor that manages multiple agents. It coordinates their actions based on user requests and ensures that the most appropriate agent is used for each task.
+
+**Parameters**:
+- `agents`: A list of agents that the supervisor will manage.
+- `model`: An instance of a model (e.g., `ChatOpenAI`) that the supervisor will use for communication.
+- `prompt`: A string that provides context and instructions for the supervisor's behavior.
+
+**Returns**: An instance of the supervisor configured with the specified agents and model.
+
+**Note**: The supervisor should be designed to efficiently route user requests to the appropriate agent based on the context.
+
+### Examples:
+**Input Examples**: 
+```python
+supervisor = create_supervisor(
+    agents=[search_agent, local_agent, datetime_agent, timer_agent, email_search_agent, email_logging_agent],
+    model=ChatOpenAI(model='gpt-4o-mini'),
+    prompt='You are a supervisor managing the following agents...'
+)
+```
+
+**Output Example**:
+```python
+# An instance of the supervisor is created.
+```
+
+## Called_functions:
+- **`create_react_agent`**: This function is used to create individual agents that can perform specific tasks. Each agent is configured with a model, tools, and a prompt that defines its behavior.
+
+- **`create_supervisor`**: This function creates a supervisor that manages multiple agents. It coordinates their actions based on user requests and ensures that the most appropriate agent is used for each task.
+
+- **`load_dotenv`**: Loads environment variables from a `.env` file, which is essential for managing sensitive information like API keys or configuration settings.
+
+- **`MemorySaver`**: This class is used to maintain the state of the agents, allowing them to remember previous interactions and manage their tasks effectively.
+
+Overall, this code sets up a sophisticated system of agents that can assist users with various tasks, from searching for information online to managing emails and local device operations. The supervisor orchestrates the interactions between these agents, ensuring efficient and context-aware responses to user requests. 
+
+### Suggestions:
+- Consider adding error handling for cases where tools may fail or return unexpected results.
+- It may be beneficial to implement logging for the agents' actions to facilitate debugging and improve user experience.
+- Ensure that the prompts provided to the agents are clear and concise to avoid ambiguity in their responses.
+Generated documentation
+(-Documentation ends-)
+
+Reviewer agent suggestions:
+1. **Add Function Description for `MemorySaver` Class**: Include a brief description of the `MemorySaver` class at the beginning of its section. This should explain its purpose in managing the state of agents and how it contributes to the overall functionality of the system.
+
+2. **Expand on `MemorySaver.__init__` Method**: While the constructor is described, it would be helpful to specify what attributes or data structures are initialized. For example, mention if it initializes a list to store previous interactions or any other relevant data.
+
+3. **Add Input/Output Examples for `MemorySaver` Class**: Consider providing more detailed examples for the `MemorySaver` class, especially for methods that may be present but are not documented. If there are methods for saving or retrieving memory, include examples of how these methods are used.
+
+4. **Clarify the Purpose of `create_react_agent` Function**: In the description of the `create_react_agent` function, clarify what types of tasks the agents are expected to perform. This will help users understand the context in which they might use this function.
+
+5. **Add Input/Output Examples for `create_react_agent` Function**: While there are examples provided, consider adding a more complex example that demonstrates how the agent interacts with the tools specified. This could include a scenario where the agent performs a task using the tools.
+
+6. **Clarify the Purpose of `create_supervisor` Function**: Similar to the `create_react_agent` function, provide more context on how the supervisor interacts with the agents. Explain what types of user requests it handles and how it determines which agent to use.
+
+7. **Add Input/Output Examples for `create_supervisor` Function**: Include a more detailed example that shows how the supervisor processes a user request and delegates tasks to the appropriate agents. This will illustrate the function's practical application.
+
+8. **Enhance the `Called_functions` Section**: For each function listed in the `Called_functions` section, provide a brief description of how it is used within the context of the `agent_supervisor.py` file. This will help users understand the relationships between the functions and their roles in the overall system.
+
+9. **Consider Adding a Section on Error Handling**: Since the documentation mentions the importance of error handling, consider adding a section that outlines common errors that might occur and how to handle them effectively. This could include examples of potential issues with agent interactions or tool failures.
+
+10. **Include a Summary of Agent Capabilities**: At the end of the documentation, consider adding a summary that outlines the capabilities of the agents created by this system. This could serve as a quick reference for users to understand what tasks the agents can assist with.

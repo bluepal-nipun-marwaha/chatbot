@@ -1,0 +1,135 @@
+The content of the file (source code) is as follows:
+```python
+# monitor.py
+import time
+import json
+import email
+import os
+import imaplib
+
+from dotenv import load_dotenv
+from twilio.rest import Client
+
+load_dotenv()
+
+with open('email_list.json', 'r') as f:
+    mail_list = json.load(f)
+
+monitor_emails = set(email for _, email in mail_list)
+
+EMAIL = os.getenv("MAIL_ID")
+PASSWORD = os.getenv("MAIL_PW")
+IMAP_SERVER = "imap.mail.yahoo.com"
+
+TWILIO_SID = os.getenv('TWILIO_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+FROM_NUMBER = os.getenv('FROM_NUMBER')
+TO_WHATSAPP = os.getenv('TO_WHATSAPP')
+
+def fetch_unread_from_senders(senders: set):
+    try:
+        mail = imaplib.IMAP4_SSL(IMAP_SERVER)
+        mail.login(EMAIL, PASSWORD)
+        mail.select("inbox")
+
+        status, messages = mail.search(None, '(UNSEEN)')
+        if status != "OK":
+            return []
+
+        unread_ids = messages[0].split()
+        matched = []
+
+        for uid in unread_ids:
+            res, msg_data = mail.fetch(uid, "(RFC822)")
+            if res != "OK":
+                continue
+
+            msg = email.message_from_bytes(msg_data[0][1])
+            from_header = email.utils.parseaddr(msg["From"])[1]
+
+            if from_header in senders:
+                matched.append(from_header)
+
+        mail.logout()
+        return matched
+    
+    except Exception as e:
+        print(f"❌ Error during email check: {e}")
+        return []
+
+client = Client(TWILIO_SID, TWILIO_AUTH_TOKEN)
+
+while True:
+    matches = fetch_unread_from_senders(monitor_emails)
+    if matches:
+        print("🚨 ALERT: Unread email(s) from monitored contacts:")
+        for match in set(matches):
+            message = client.messages.create(
+                        from_=FROM_NUMBER,
+                        to=TO_WHATSAPP,
+                        body=f'New unread email from {match}'
+                    )
+            print(f"→ {match}")
+        print("===")
+    else:
+        print("✅ No alert. Checking again in 30 sec...")
+
+    time.sleep(30)
+```
+
+Explanation of Every Class and Function:
+- **Imports**: The code imports necessary libraries:
+  - `time` for handling delays.
+  - `json` for reading and writing JSON data.
+  - `email` for parsing email messages.
+  - `os` for accessing environment variables.
+  - `imaplib` for connecting to the email server using the IMAP protocol.
+  - `load_dotenv` from `dotenv` to load environment variables from a `.env` file.
+  - `Client` from `twilio.rest` to send messages via Twilio.
+
+- **Environment Variables**: The code loads environment variables that contain sensitive information such as email credentials and Twilio API keys.
+
+- **Email List Loading**: The code reads a JSON file (`email_list.json`) that contains a list of monitored email addresses.
+
+- **`fetch_unread_from_senders(senders: set)`**: This function checks for unread emails from specified senders.
+  - **Parameters**:
+    - `senders`: A set of email addresses to monitor.
+  - **Functionality**:
+    - Connects to the email server and logs in using the provided credentials.
+    - Searches for unread emails in the inbox.
+    - For each unread email, it fetches the email data and checks if the sender is in the monitored list.
+    - Returns a list of matched senders who have unread emails.
+
+- **Twilio Client Initialization**: An instance of the Twilio `Client` is created using the loaded Twilio credentials.
+
+- **Main Loop**: The code enters an infinite loop where it:
+  - Calls `fetch_unread_from_senders()` to check for unread emails from monitored contacts.
+  - If unread emails are found, it sends a notification via WhatsApp using Twilio and prints the sender's information.
+  - If no unread emails are found, it prints a message indicating that it will check again in 30 seconds.
+  - The loop pauses for 30 seconds before repeating.
+
+Input/Output Examples:
+1. **Fetching Unread Emails**:
+   - **Input**: The function `fetch_unread_from_senders(monitor_emails)` is called.
+   - **Output**: Returns a list of email addresses that have unread emails from the monitored list.
+
+2. **Sending Notifications**:
+   - **Input**: If unread emails are found from monitored contacts, a message is sent via Twilio.
+   - **Output**: A WhatsApp message is sent to the specified number, e.g., "New unread email from john@example.com".
+
+3. **Error Handling**:
+   - **Input**: If there is an issue connecting to the email server or fetching emails.
+   - **Output**: Prints an error message, e.g., "❌ Error during email check: [error message]".
+
+Called functions information:
+- **`load_dotenv()`**: Loads environment variables from a `.env` file, which is essential for managing sensitive information securely.
+
+- **`imaplib.IMAP4_SSL()`**: Establishes a secure connection to the email server using the IMAP protocol.
+
+- **`email.message_from_bytes()`**: Converts the raw email bytes into a message object for easier manipulation and extraction of headers and body.
+
+- **`email.utils.parseaddr()`**: Parses the "From" header of the email to extract the sender's email address.
+
+- **`Client.messages.create()`**: Sends a message via Twilio's API, allowing notifications to be sent to WhatsApp.
+
+Overall, this code implements a monitoring system that checks for unread emails from specified contacts and sends notifications via WhatsApp when new unread emails are detected. It effectively integrates email fetching and messaging functionalities, providing a useful tool for email management.

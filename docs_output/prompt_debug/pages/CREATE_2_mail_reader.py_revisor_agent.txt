@@ -1,0 +1,283 @@
+
+The file content (source code):
+import streamlit as st
+import sqlite3
+import subprocess
+import signal
+import os
+import json
+
+# DB Setup
+conn = sqlite3.connect('emails.db', check_same_thread=False)
+cursor = conn.cursor()
+
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS emails (
+        name TEXT PRIMARY KEY,
+        email TEXT NOT NULL
+    )
+''')
+conn.commit()
+
+# Functions
+def add_email(name, email):
+    try:
+        cursor.execute("INSERT INTO emails (name, email) VALUES (?, ?)", (name, email))
+        conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False
+
+def reset_email():
+    try:
+        cursor.execute('DELETE FROM emails')
+        conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False
+
+def get_all_emails():
+    cursor.execute('SELECT * FROM emails')
+    return cursor.fetchall()
+
+def write_emails():
+    mail_list = get_all_emails()
+    with open('email_list.json',  'w') as f:
+        json.dump(mail_list, f)
+
+# Streamlit App
+st.title('📧 Mail Reader')
+
+st.write('')
+
+if 'monitor_process' not in st.session_state:
+    st.session_state.monitor_process = None
+
+st.write('Press this button to start monitoring the emails')
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    if st.button('MONITOR'):
+        if st.session_state.monitor_process is None or st.session_state.monitor_process.poll() is not None:
+            write_emails()
+            st.session_state.monitor_process = subprocess.Popen(['python', 'monitor.py'])
+            st.success("Monitoring started.")
+        else:
+            st.info("Already running.")
+
+with col2:
+    if st.button('STOP'):
+        proc = st.session_state.monitor_process
+        if proc and proc.poll() is None:
+            if os.name == "nt":  # Windows
+                proc.terminate()
+            else:  # Unix/Linux/macOS
+                os.kill(proc.pid, signal.SIGTERM)
+            st.session_state.monitor_process = None
+            st.success("Monitoring stopped.")
+        else:
+            st.info("Nothing is running.")
+    
+if st.session_state.monitor_process and st.session_state.monitor_process.poll() is None:
+    st.markdown("⏳ Monitoring is running...")
+else:
+    st.markdown("✅ Monitoring is stopped.")
+        
+st.write('')
+
+st.subheader('Enter emails to monitor')
+name = st.text_input('Enter the Name')
+mail = st.text_input('Enter the Email')
+
+if st.button("✅ Save and Continue"):
+    if name and mail:
+        success = add_email(name, mail)
+        if success:
+            st.success(f"Saved: {name} → {mail}")
+        else:
+            st.warning("Name already exists. Use a unique name.")
+    else:
+        st.warning("Please enter both name and email.")
+
+st.write('')
+
+if st.button('RESET'):
+    success = reset_email()
+
+st.write("### Monitored Emails")
+email_list = get_all_emails()
+for n, e in email_list:
+    st.write(f"**{n}**: {e}")
+
+(-Source code ends-)
+
+This is the code-level documentation for the source code and Reviewer agent's comments. Please IMPROVE the documentation according to the SUGGESTIONS, which involves adding missing function descriptions, input/output examples, or improving the clarity of the documentation. 
+DO NOT DELETE/REMOVE any part of the existing documentation.
+Your output should be the SAME FORMAT as the existing documentation, with the necessary improvements. 
+
+Context: 
+# 2_mail_reader.py
+
+## Overview:
+The `2_mail_reader.py` file is a Streamlit application designed to manage and monitor email addresses. It utilizes a SQLite database to store email entries and provides a user interface for adding, resetting, and displaying emails. The application also includes functionality to start and stop an external monitoring process that presumably tracks email activity. Key components include database setup, functions for email management, and a Streamlit interface that allows users to interact with the application seamlessly.
+
+## ClassDef or FunctionDef
+
+### FunctionDef add_email(name, email)
+The `add_email` function is responsible for inserting a new email entry into the SQLite database. It takes two parameters: `name` and `email`, which represent the user's name and their corresponding email address.
+
+**Parameters**:
+- `name` (str): The name of the user to be added to the database.
+- `email` (str): The email address of the user to be added to the database.
+
+**Returns**:
+- `bool`: Returns `True` if the email was successfully added, or `False` if the name already exists in the database (due to the primary key constraint).
+
+**Note**: It is important to ensure that the name provided is unique, as it serves as the primary key in the database. Attempting to add a duplicate name will result in an `IntegrityError`.
+
+#### Examples:
+**Input Examples**: 
+```python
+add_email("Alice", "alice@example.com")
+```
+This input attempts to add Alice's email to the database.
+
+**Output Example**:
+```python
+True
+```
+This output indicates that the email was successfully added.
+
+---
+
+### FunctionDef reset_email()
+The `reset_email` function is designed to delete all entries from the `emails` table in the SQLite database. This function is useful for clearing the email list when needed.
+
+**Parameters**: None
+
+**Returns**:
+- `bool`: Returns `True` if the reset operation was successful.
+
+**Note**: This function will remove all email entries, so it should be used with caution. There is no confirmation prompt before deletion.
+
+#### Examples:
+**Input Examples**: 
+```python
+reset_email()
+```
+This input calls the function to reset the email list.
+
+**Output Example**:
+```python
+True
+```
+This output indicates that the email list was successfully reset.
+
+---
+
+### FunctionDef get_all_emails()
+The `get_all_emails` function retrieves all email entries from the SQLite database. It returns the data in a list of tuples, where each tuple contains a name and an email address.
+
+**Parameters**: None
+
+**Returns**:
+- `list`: A list of tuples containing all email entries from the database.
+
+**Note**: This function does not handle any exceptions, so if the database is empty, it will return an empty list.
+
+#### Examples:
+**Input Examples**: 
+```python
+get_all_emails()
+```
+This input retrieves all email entries from the database.
+
+**Output Example**:
+```python
+[("Alice", "alice@example.com"), ("Bob", "bob@example.com")]
+```
+This output shows a list of email entries retrieved from the database.
+
+---
+
+### FunctionDef write_emails()
+The `write_emails` function fetches all email entries from the database using `get_all_emails()` and writes them to a JSON file named `email_list.json`. This function is useful for exporting email data for external use.
+
+**Parameters**: None
+
+**Returns**: None
+
+**Note**: The function will overwrite the existing `email_list.json` file each time it is called. Ensure that this behavior is acceptable before using the function.
+
+#### Examples:
+**Input Examples**: 
+```python
+write_emails()
+```
+This input calls the function to write the email list to a JSON file.
+
+**Output Example**:
+```json
+[["Alice", "alice@example.com"], ["Bob", "bob@example.com"]]
+```
+This output represents the content of the `email_list.json` file after the function is executed.
+
+---
+
+## Streamlit App
+The main part of the code creates a web application interface using Streamlit. It includes various components for user interaction, such as buttons for starting and stopping email monitoring, input fields for entering email data, and displays for showing monitored emails.
+
+### Monitoring Process
+The application uses a session state variable to track whether the email monitoring process is running. It provides buttons to start and stop the monitoring process using `subprocess.Popen` to run an external script (`monitor.py`).
+
+### Email Input
+Users can input a name and email address. When the "Save and Continue" button is clicked, it attempts to save the email using `add_email()`.
+
+### Reset Button
+The application provides functionality to reset the email list by calling `reset_email()`.
+
+### Display Monitored Emails
+The application fetches and displays all monitored emails from the database using `get_all_emails()`.
+
+---
+
+## Called_functions:
+- **`sqlite3.connect`**: Establishes a connection to the SQLite database, allowing for data storage and retrieval.
+- **`cursor.execute`**: Executes SQL commands to manipulate the database (e.g., creating tables, inserting data, deleting data).
+- **`subprocess.Popen`**: Starts the external monitoring script (`monitor.py`), allowing the application to monitor emails in real-time.
+- **`os.kill` and `proc.terminate`**: Used to stop the monitoring process based on the operating system.
+- **`json.dump`**: Writes the list of emails to a JSON file for external use or storage.
+
+Overall, this code provides a user-friendly interface for managing email addresses, monitoring email activity, and storing email data in a SQLite database. 
+
+### Suggestions:
+- Consider adding error handling for database operations to provide more informative feedback to users in case of failures.
+- Implement confirmation prompts for destructive actions like resetting the email list to prevent accidental data loss.
+- Enhance the monitoring functionality by providing more details about what is being monitored and how users can access that information.
+Generated documentation
+(-Documentation ends-)
+
+Reviewer agent suggestions:
+1. **Function Description for `write_emails()`**: Add a brief description of what the function does at the beginning of the function documentation. For example: "The `write_emails` function exports all email entries from the database to a JSON file."
+
+2. **Input/Output Examples for `get_all_emails()`**: Include a more comprehensive output example that reflects a scenario where the database is empty. For instance:
+   - **Output Example**:
+   ```python
+   []
+   ```
+   This output indicates that there are no email entries in the database.
+
+3. **Clarification in `reset_email()`**: In the **Note** section, clarify that the function does not provide any confirmation before deletion. You could rephrase it to: "This function will remove all email entries without any confirmation prompt, so it should be used with caution."
+
+4. **Error Handling Note**: In the **Note** section of `add_email()`, consider adding a note about potential exceptions that may arise, such as `sqlite3.IntegrityError`, to inform users about possible issues when adding emails.
+
+5. **Enhance the Overview Section**: Provide a brief explanation of the purpose of the monitoring process mentioned in the Overview. For example, you could add: "The monitoring process is intended to track incoming emails and notify users of any new activity."
+
+6. **Expand on the Monitoring Process**: In the **Monitoring Process** section, consider adding a brief description of what the external script (`monitor.py`) does and how it interacts with the email data. This will help users understand the purpose of the monitoring feature.
+
+7. **Add a Summary of the Streamlit App**: At the end of the Streamlit App section, consider adding a summary sentence that encapsulates the overall functionality of the app, such as: "This application provides a comprehensive solution for managing and monitoring email addresses through an intuitive web interface."
+
+8. **Consider Adding a Section on Dependencies**: If there are any specific libraries or dependencies required to run the application (e.g., Streamlit, SQLite), consider adding a section that lists these dependencies along with installation instructions.
+
+By implementing these suggestions, the documentation will be clearer, more informative, and user-friendly, enhancing the overall understanding of the codebase.

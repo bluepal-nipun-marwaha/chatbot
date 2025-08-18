@@ -1,0 +1,163 @@
+The content of the file (source code) is as follows:
+```python
+import imaplib
+import email
+import datetime
+import os
+import re
+
+from email.header import decode_header
+from langchain_core.tools import Tool
+from dotenv import load_dotenv
+load_dotenv()
+
+LOG_FILE = "logs/mail_logs.txt"
+
+def log_to_file(msg):
+    timestamp = datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
+    line = f"{timestamp} {msg}"
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
+        f.write(line + "\n")
+
+def fetch_and_log_emails(query: str = "") -> str:
+    username = os.getenv("MAIL_ID")
+    password = os.getenv("MAIL_PW")
+    imap_host = "imap.mail.yahoo.com"
+
+    try:
+        days = 7
+        match = re.search(r"\d+", query)
+        if match:
+            days = int(match.group(0))
+
+        with open(LOG_FILE, "w", encoding="utf-8") as f:
+            f.write('')
+
+        since_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%d-%b-%Y")
+
+        imap = imaplib.IMAP4_SSL(imap_host)
+        imap.login(username, password)
+        imap.select("INBOX")
+
+        status, messages = imap.search(None, f'SINCE {since_date}')
+        if status != "OK":
+            return "Failed to search emails."
+
+        email_ids = messages[0].split()
+        if not email_ids:
+            return f"No emails found from the past {days} day(s)."
+
+        for eid in email_ids:
+            _, msg_data = imap.fetch(eid, "(RFC822)")
+            for response_part in msg_data:
+                if isinstance(response_part, tuple):
+                    msg = email.message_from_bytes(response_part[1])
+
+                    subject, encoding = decode_header(msg.get("Subject", "No Subject"))[0]
+                    if isinstance(subject, bytes):
+                        subject = subject.decode(encoding or "utf-8", errors="ignore")
+
+                    from_, encoding = decode_header(msg.get("From", "Unknown Sender"))[0]
+                    if isinstance(from_, bytes):
+                        from_ = from_.decode(encoding or "utf-8", errors="ignore")
+
+                    date = msg.get("Date", "Unknown Date")
+
+                    log_to_file(f"Subject: {subject}")
+                    log_to_file(f"From: {from_}")
+                    log_to_file(f"Date: {date}")
+                    log_to_file("Body:")
+
+                    body = ""
+                    if msg.is_multipart():
+                        for part in msg.walk():
+                            if part.get_content_type() == "text/plain" and not part.get("Content-Disposition"):
+                                try:
+                                    body = part.get_payload(decode=True).decode(part.get_content_charset() or "utf-8", errors="ignore")
+                                    break
+                                except:
+                                    continue
+                    else:
+                        payload = msg.get_payload(decode=True)
+                        if payload:
+                            try:
+                                body = payload.decode(msg.get_content_charset() or "utf-8", errors="ignore")
+                            except:
+                                body = str(payload)
+
+                    for line in body.strip().splitlines():
+                        log_to_file(line.strip())
+
+                    log_to_file("-" * 50)
+
+        imap.logout()
+        return f"Logged {len(email_ids)} emails from the past {days} day(s)."
+
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+email_logger_tool = Tool(
+    name="log_recent_emails",
+    func=fetch_and_log_emails,
+    description="Logs all emails from the past N days into a file. Use like: 'log emails from last 5 days'"
+)
+```
+
+Explanation of Every Class and Function:
+- **Imports**: The code imports necessary libraries:
+  - `imaplib` for connecting to the email server using the IMAP protocol.
+  - `email` for parsing email messages.
+  - `datetime` for handling date and time operations.
+  - `os` for accessing environment variables.
+  - `re` for regular expression operations.
+  - `decode_header` from `email.header` to decode email headers.
+
+- **`LOG_FILE`**: A constant that defines the path to the log file where email information will be stored.
+
+- **`log_to_file(msg)`**: This function logs a message to the specified log file with a timestamp.
+  - **Parameters**:
+    - `msg`: The message to log.
+  - **Functionality**:
+    - Gets the current timestamp and formats it.
+    - Opens the log file in append mode and writes the message with the timestamp.
+
+- **`fetch_and_log_emails(query: str = "") -> str`**: This function connects to an email server, fetches emails based on a query, and logs their details.
+  - **Parameters**:
+    - `query`: A string that may contain the number of days to look back for emails.
+  - **Functionality**:
+    - Retrieves the email credentials from environment variables.
+    - Parses the query to determine how many days back to search for emails.
+    - Connects to the email server and selects the inbox.
+    - Searches for emails received since a calculated date.
+    - For each email found, it fetches the email data, decodes the subject, sender, and date, and logs this information along with the email body.
+    - Handles multipart emails to extract the plain text body.
+    - Logs a separator line after each email.
+    - Returns a summary of how many emails were logged or an error message if something goes wrong.
+
+- **`email_logger_tool`**: An instance of the `Tool` class that wraps the `fetch_and_log_emails` function, allowing it to be used as a tool in a larger application.
+
+Input/Output Examples:
+1. **Logging Emails**:
+   - **Input**: `fetch_and_log_emails("log emails from last 5 days")`
+   - **Output**: Returns a message like "Logged 3 emails from the past 5 day(s)." and logs the details of the emails to `logs/mail_logs.txt`.
+
+2. **No Emails Found**:
+   - **Input**: `fetch_and_log_emails("log emails from last 30 days")` (assuming no emails in that period)
+   - **Output**: Returns "No emails found from the past 30 day(s)."
+
+3. **Error Handling**:
+   - **Input**: If the email credentials are incorrect or the server is unreachable.
+   - **Output**: Returns an error message, e.g., "Error: [specific error message]".
+
+Called functions information:
+- **`os.getenv()`**: Used to retrieve the email ID and password from environment variables, ensuring sensitive information is not hardcoded.
+
+- **`imaplib.IMAP4_SSL()`**: Establishes a secure connection to the email server using the IMAP protocol.
+
+- **`email.message_from_bytes()`**: Converts the raw email bytes into a message object for easier manipulation and extraction of headers and body.
+
+- **`decode_header()`**: Decodes email headers that may be encoded in different formats, ensuring that subjects and sender names are correctly displayed.
+
+- **`open()`**: Used to open the log file for writing, either to append new log entries or to clear the file at the start of the logging process.
+
+Overall, this code provides functionality for fetching and logging recent emails from a specified email account, allowing users to keep track of their email communications efficiently. It handles various email formats and ensures that the logged information is well-structured and easy to read.

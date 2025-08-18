@@ -1,0 +1,198 @@
+
+
+This is the generated documentation for the source code. Please check its quality and accuracy, and provide suggestions for improvement. Your Suggestions HAVE TO BE specific and clear, so that the revisor can EASILY understand and implement them WITHOUT the knowledge of codebase.
+Note: 
+1. DO NOT change the documentation, your task is to review and provide suggestions for it.
+2. Your suggestions should not contain REMOVE/DELETE instructions.
+3. Your suggestions may involve ADDING Function Description for missing functions, Input/Output examples for missing functions to the ##Examples section, or improving the clarity of the documentation.
+Please use the following output template:
+`Generated documentation`
+(-Documentation ends-)
+
+Reviewer agent sugesstions:
+`Put your comments and suggestions for improvement here`
+
+
+
+Context: 
+# search_tools.py
+
+## Overview:
+The `search_tools.py` file is designed to facilitate various search functionalities by integrating with external APIs. It leverages the `langchain` and `langchain_community` libraries to create tools that allow users to perform searches on DuckDuckGo, Wikipedia, and Arxiv. The key components of this file include the creation of search tools for each of these platforms, which are encapsulated in the `Tool` class. Each tool is configured to handle specific types of queries and return relevant results, making it a versatile resource for retrieving information from the internet, encyclopedic sources, and academic papers.
+
+## ClassDef Tool
+
+The `Tool` class from the `langchain.tools` module is utilized to create instances that encapsulate specific search functionalities. Each instance of `Tool` is associated with a function that executes a search query and a description that outlines its purpose.
+
+### Method __init__ (method BELONGING to Tool)
+The `__init__` method initializes a new instance of the `Tool` class.
+
+**Parameters**:
+- `name` (str): The name of the tool.
+- `func` (callable): The function that the tool will execute.
+- `description` (str): A brief description of what the tool does.
+
+**Returns**: None
+
+**Note**: The `Tool` class is essential for creating a standardized interface for different search functionalities, allowing for easy integration and usage.
+
+#### Examples:
+**Input Examples**: 
+```python
+web_search_tool = Tool(
+    name='search_web',
+    func=search.run,
+    description='searches the internet for information'
+)
+```
+
+**Output Example**:
+```python
+# This creates a tool that can be used to search the web.
+```
+
+## FunctionDef DuckDuckGoSearchRun
+
+The `DuckDuckGoSearchRun` class is responsible for executing search queries against the DuckDuckGo search engine. It provides a method to run searches and retrieve results.
+
+### Method run (method BELONGING to DuckDuckGoSearchRun)
+The `run` method executes a search query against DuckDuckGo and returns the results.
+
+**Parameters**:
+- `query` (str): The search term or phrase to query DuckDuckGo.
+
+**Returns**: 
+- A list of search results related to the query.
+
+**Note**: Ensure that the query is well-formed to get the best results. The method may return an empty list if no results are found.
+
+#### Examples:
+**Input Examples**: 
+```python
+results = search.run("Python programming")
+```
+
+**Output Example**:
+```python
+# Returns a list of search results related to "Python programming".
+```
+
+## FunctionDef WikipediaAPIWrapper
+
+The `WikipediaAPIWrapper` class wraps the API calls to Wikipedia, allowing for easy retrieval of information. It is configured with parameters to control the output.
+
+### Method __init__ (method BELONGING to WikipediaAPIWrapper)
+The `__init__` method initializes a new instance of the `WikipediaAPIWrapper`.
+
+**Parameters**:
+- `top_k_results` (int): The number of top results to return.
+- `doc_content_chars_max` (int): The maximum number of characters for the document content.
+
+**Returns**: None
+
+**Note**: Adjusting the `top_k_results` and `doc_content_chars_max` parameters can help tailor the output to specific needs.
+
+#### Examples:
+**Input Examples**: 
+```python
+api_wrapper = WikipediaAPIWrapper(top_k_results=5, doc_content_chars_max=1000)
+```
+
+**Output Example**:
+```python
+# This creates a Wikipedia API wrapper configured to return 5 results with a max content length of 1000 characters.
+```
+
+## FunctionDef WikipediaQueryRun
+
+The `WikipediaQueryRun` class is responsible for executing queries against the Wikipedia API.
+
+### Method run (method BELONGING to WikipediaQueryRun)
+The `run` method executes a query against the Wikipedia API and returns the results.
+
+**Parameters**:
+- `query` (str): The search term or phrase to query Wikipedia.
+
+**Returns**: 
+- A summary or relevant information about the query from Wikipedia.
+
+**Note**: The method is designed to provide quick factual information, so ensure the query is specific for better results.
+
+#### Examples:
+**Input Examples**: 
+```python
+wiki_results = wiki.run("Python programming language")
+```
+
+**Output Example**:
+```python
+# Returns a summary or relevant information about the Python programming language from Wikipedia.
+```
+
+## FunctionDef ArxivAPIWrapper
+
+The `ArxivAPIWrapper` class wraps the API calls to Arxiv, allowing for retrieval of academic papers.
+
+### Method __init__ (method BELONGING to ArxivAPIWrapper)
+The `__init__` method initializes a new instance of the `ArxivAPIWrapper`.
+
+**Parameters**:
+- `top_k_results` (int): The number of top results to return.
+
+**Returns**: None
+
+**Note**: The `top_k_results` parameter can be adjusted to control the number of academic papers retrieved.
+
+#### Examples:
+**Input Examples**: 
+```python
+arx = ArxivAPIWrapper(top_k_results=3)
+```
+
+**Output Example**:
+```python
+# This creates an Arxiv API wrapper configured to return 3 results.
+```
+
+## FunctionDef ArxivQueryRun
+
+The `ArxivQueryRun` class is responsible for executing queries against the Arxiv API.
+
+### Method run (method BELONGING to ArxivQueryRun)
+The `run` method executes a query against the Arxiv API and returns the results.
+
+**Parameters**:
+- `query` (str): The search term or phrase to query Arxiv.
+
+**Returns**: 
+- A list of academic papers related to the query.
+
+**Note**: Ensure that the query is relevant to academic research for optimal results.
+
+#### Examples:
+**Input Examples**: 
+```python
+arxiv_results = arxiv.run("machine learning")
+```
+
+**Output Example**:
+```python
+# Returns a list of academic papers related to machine learning from Arxiv.org.
+```
+
+## Called_functions:
+- **`DuckDuckGoSearchRun.run()`**: Executes a search query against DuckDuckGo and returns the results. It is essential for enabling web search functionality.
+
+- **`WikipediaAPIWrapper`**: Wraps the API calls to Wikipedia, allowing for easy retrieval of information. It is configured with parameters like `top_k_results` and `doc_content_chars_max` to control the output.
+
+- **`WikipediaQueryRun.run()`**: Executes a query against the Wikipedia API and returns the results. It is used to fetch quick factual information.
+
+- **`ArxivAPIWrapper`**: Wraps the API calls to Arxiv, allowing for retrieval of academic papers. It is configured to specify how many results to return.
+
+- **`ArxivQueryRun.run()`**: Executes a query against the Arxiv API and returns the results. It is used to fetch in-depth scientific information.
+
+Overall, this code sets up a series of tools for searching the web, retrieving information from Wikipedia, and accessing academic papers from Arxiv. Each tool is designed to provide specific functionalities, making it easy to integrate these capabilities into larger applications. 
+
+### Suggestions:
+- Consider adding error handling for cases where the API calls fail or return unexpected results.
+- It may be beneficial to include logging for debugging purposes, especially when dealing with external API calls.
